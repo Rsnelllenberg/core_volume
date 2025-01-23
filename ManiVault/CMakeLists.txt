@@ -315,8 +315,9 @@ add_subdirectory(src/plugins/ColorData)
 add_subdirectory(src/plugins/TextData)
 add_subdirectory(src/plugins/ClusterData)
 add_subdirectory(src/plugins/ImageData)
+add_subdirectory(src/plugins/VolumeData)
 
-set_target_properties(PointData ColorData TextData ClusterData ImageData
+set_target_properties(PointData ColorData TextData ClusterData ImageData VolumeData
     PROPERTIES
     FOLDER DataPlugins
 )
