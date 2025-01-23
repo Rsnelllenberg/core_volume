@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.17)
+ cmake_minimum_required(VERSION 3.17)
 
 set(VOLUMEDATA "VolumeData")
 PROJECT(${VOLUMEDATA})
@@ -87,7 +87,6 @@ target_link_libraries(${VOLUMEDATA} PRIVATE Qt6::Widgets)
 target_link_libraries(${VOLUMEDATA} PRIVATE Qt6::WebEngineWidgets)
 target_link_libraries(${VOLUMEDATA} PRIVATE ${MV_PUBLIC_LIB})
 target_link_libraries(${VOLUMEDATA} PRIVATE PointData)
-target_link_libraries(${VOLUMEDATA} PRIVATE ClusterData)
 
 ## Use AVX if enabled and available
 #mv_check_and_set_AVX(${VOLUMEDATA} ${MV_USE_AVX})

@@ -6,7 +6,7 @@ set(ManiVault_INCLUDE_DIR "${ManiVault_INSTALL_DIR}/$<CONFIGURATION>/include")
 set(ManiVault_LIB_DIR "${ManiVault_INSTALL_DIR}/$<CONFIGURATION>/lib")
 set_and_check(ManiVault_CMAKE_DIR "${PACKAGE_PREFIX_DIR}/cmake/mv" CACHE INTERNAL "")
 
-list(APPEND ManiVault_LINK_LIBS ManiVault::Core ManiVault::PointData ManiVault::ClusterData ManiVault::ImageData ManiVault::ColorData ManiVault::TextData)
+list(APPEND ManiVault_LINK_LIBS ManiVault::Core ManiVault::PointData ManiVault::ClusterData ManiVault::ImageData ManiVault::VolumeData ManiVault::ColorData ManiVault::TextData)
 
 include("${ManiVault_CMAKE_DIR}/ManiVaultTargets.cmake")
 
@@ -17,6 +17,6 @@ include("${ManiVault_CMAKE_DIR}/mv_install_dependencies_utils.cmake")
 include("${ManiVault_CMAKE_DIR}/mv_check_and_set_AVX.cmake")
 
 message(STATUS "Found ManiVault version ${ManiVault_VERSION}. Use for example as:")
-message(STATUS "   find_package(ManiVault COMPONENTS Core PointData ClusterData ImageData ColorData TextData CONFIG)")
+message(STATUS "   find_package(ManiVault COMPONENTS Core PointData ClusterData ImageData VolumeData ColorData TextData CONFIG)")
 message(STATUS "   target_include_directories(\${YOURLIB} PRIVATE \"\${ManiVault_INCLUDE_DIR})\"")
-message(STATUS "   target_link_libraries(\${YOURLIB} PRIVATE ManiVault::Core ManiVault::PointData ManiVault::ClusterData ManiVault::ImageData ManiVault::ColorData ManiVault::TextData)")
+message(STATUS "   target_link_libraries(\${YOURLIB} PRIVATE ManiVault::Core ManiVault::PointData ManiVault::ClusterData ManiVault::ImageData ManiVault::VolumeData ManiVault::ColorData ManiVault::TextData)")
