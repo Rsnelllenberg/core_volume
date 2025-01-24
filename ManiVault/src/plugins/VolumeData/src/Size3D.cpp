@@ -44,6 +44,11 @@ void Size3D::setDepth(int depth)
     _depth = depth;
 }
 
+mv::Vector3f Size3D::toVector3f() const
+{
+    return mv::Vector3f(static_cast<float>(_width), static_cast<float>(_height), static_cast<float>(_depth));
+}
+
 bool Size3D::operator==(const Size3D &other) const
 {
     return _width == other._width && _height == other._height && _depth == other._depth;

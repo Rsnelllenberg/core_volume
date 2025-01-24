@@ -26,6 +26,7 @@
 
 
 using namespace mv::util;
+static int GL_MAX_3D_TEXTURE_SIZE = 2048; // 2048 is the minimum value for OpenGL 3D textures, defined here manually for now to avoid including OpenGL headers
 
 Volumes::Volumes(QString dataName, bool mayUnderive /*= false*/, const QString& guid /*= ""*/) :
     DatasetImpl(dataName, mayUnderive, guid),
@@ -59,13 +60,6 @@ mv::Dataset<Volumes> Volumes::addVolumeDataset(QString datasetGuiName, const mv:
     return volumes;
 }
 
-//mv::Dataset<Volumes> Volumes::addVolumeDataset(QString datasetGuiName, const mv::Dataset<Points>& spatialDataset, const mv::Dataset<Points>& valueDataset)
-//{
-//    mv::Dataset<Volumes> volumes = mv::data().createDataset<Volumes>("Volumes", "volumes", parentDataSet);
-//
-//    return volumes;
-//}
-
 Dataset<DatasetImpl> Volumes::createSubsetFromSelection(const QString& guiName, const Dataset<DatasetImpl>& parentDataSet /*= Dataset<DatasetImpl>()*/, const bool& visible /*= true*/) const
 {
     return mv::data().createSubsetFromSelection(getSelection(), toSmartPointer(), guiName, parentDataSet, visible);
@@ -80,16 +74,6 @@ Dataset<DatasetImpl> Volumes::copy() const
     return volumes;
 }
 
-VolumeData::ReturnFormat Volumes::getReturnFormat() const
-{
-    return _volumeData->getReturnFormat();
-}
-
-void Volumes::setReturnFormat(const VolumeData::ReturnFormat& type)
-{
-    _volumeData->setReturnFormat(type);
-}
-
 Size3D Volumes::getVolumeSize() const
 {
     return _volumeData->getVolumeSize();
@@ -100,14 +84,14 @@ void Volumes::setVolumeSize(const Size3D& volumeSize)
     _volumeData->setVolumeSize(volumeSize);
 }
 
-std::uint32_t Volumes::getNumberOfComponentsPerVoxel() const
+std::uint32_t Volumes::getComponentsPerVoxel() const
 {
-    return _volumeData->getNumberOfComponentsPerVoxel();
+    return _volumeData->getComponentsPerVoxel();
 }
 
-void Volumes::setNumberOfComponentsPerVoxel(const std::uint32_t& numberOfComponentsPerVoxel)
+void Volumes::setComponentsPerVoxel(const std::uint32_t& componentsPerVoxel)
 {
-    _volumeData->setNumberOfComponentsPerVoxel(numberOfComponentsPerVoxel);
+    _volumeData->setComponentsPerVoxel(componentsPerVoxel);
 }
 
 QStringList Volumes::getVolumeFilePaths() const
@@ -124,11 +108,6 @@ std::uint32_t Volumes::getNumberOfVoxels() const
 {
     const auto size = getVolumeSize();
     return size.width() * size.height() * size.depth();
-}
-
-std::uint32_t Volumes::valuesPerVoxel()
-{
-    return 4;
 }
 
 QIcon Volumes::getIcon(const QColor& color /*= Qt::black*/) const
@@ -177,44 +156,44 @@ void Volumes::selectInvert()
 {
 }
 
-void Volumes::getScalarData(const std::uint32_t& dimensionIndex, QVector<float>& scalarData, QPair<float, float>& scalarDataRange)
-{
-    try
-    {
-        const auto numberOfElementsRequired = getNumberOfVoxels();
+//void Volumes::getVolumeData(const std::uint32_t& dimensionIndex, QVector<float>& scalarData, QPair<float, float>& scalarDataRange)
+//{
+//    try
+//    {
+//        const auto numberOfElementsRequired = getNumberOfVoxels();
+//
+//        if (static_cast<std::uint32_t>(scalarData.count()) < numberOfElementsRequired)
+//            throw std::runtime_error("Scalar data vector number of elements is smaller than the number of voxels");
+//
+//        getScalarDataForVolumeDimension(dimensionIndex, scalarData, scalarDataRange);
+//
+//        // Initialize scalar data range
+//        scalarDataRange = { std::numeric_limits<float>::max(), std::numeric_limits<float>::lowest() };
+//
+//        // Compute the actual scalar data range
+//        for (auto& scalar : scalarData) {
+//            scalarDataRange.first = std::min(scalar, scalarDataRange.first);
+//            scalarDataRange.second = std::max(scalar, scalarDataRange.second);
+//        }
+//    }
+//    catch (std::exception& e)
+//    {
+//        exceptionMessageBox("Unable to get scalar data for the given dimension index", e);
+//    }
+//    catch (...) {
+//        exceptionMessageBox("Unable to get scalar data for the given dimension index");
+//    }
+//}
 
-        if (static_cast<std::uint32_t>(scalarData.count()) < numberOfElementsRequired)
-            throw std::runtime_error("Scalar data vector number of elements is smaller than the number of voxels");
-
-        getScalarDataForVolumeStack(dimensionIndex, scalarData, scalarDataRange);
-
-        // Initialize scalar data range
-        scalarDataRange = { std::numeric_limits<float>::max(), std::numeric_limits<float>::lowest() };
-
-        // Compute the actual scalar data range
-        for (auto& scalar : scalarData) {
-            scalarDataRange.first = std::min(scalar, scalarDataRange.first);
-            scalarDataRange.second = std::max(scalar, scalarDataRange.second);
-        }
-    }
-    catch (std::exception& e)
-    {
-        exceptionMessageBox("Unable to get scalar data for the given dimension index", e);
-    }
-    catch (...) {
-        exceptionMessageBox("Unable to get scalar data for the given dimension index");
-    }
-}
-
-void Volumes::getScalarData(const std::vector<std::uint32_t>& dimensionIndices, QVector<float>& scalarData, QPair<float, float>& scalarDataRange)
+void Volumes::getVolumeData(const std::vector<std::uint32_t>& dimensionIndices, std::vector<float>& scalarData, QPair<float, float>& scalarDataRange)
 {
     try
     {
         const auto numberOfVoxels = static_cast<std::int32_t>(getNumberOfVoxels());
         const auto numberOfElementsRequired = dimensionIndices.size() * getNumberOfVoxels();
-        const auto numberOfComponentsPerVoxel = static_cast<std::int32_t>(getNumberOfComponentsPerVoxel());
+        const auto numberOfComponentsPerVoxel = static_cast<std::int32_t>(getComponentsPerVoxel());
 
-        if (static_cast<std::uint32_t>(scalarData.count()) < numberOfElementsRequired)
+        if (static_cast<std::uint32_t>(scalarData.capacity()) < numberOfElementsRequired)
             throw std::runtime_error("Scalar data vector number of elements is smaller than (nDimensions * nVoxels)");
 
         QVector<float> tempScalarData(numberOfElementsRequired);
@@ -223,8 +202,7 @@ void Volumes::getScalarData(const std::vector<std::uint32_t>& dimensionIndices, 
         std::int32_t componentIndex = 0;
 
         for (const auto& dimensionIndex : dimensionIndices) {
-            getScalarDataForVolumeStack(dimensionIndex, tempScalarData, tempScalarDataRange);
-
+            getScalarDataForVolumeDimension(dimensionIndex, tempScalarData, tempScalarDataRange);
             for (std::int32_t voxelIndex = 0; voxelIndex < numberOfVoxels; voxelIndex++)
                 scalarData[static_cast<size_t>(voxelIndex * numberOfComponentsPerVoxel) + componentIndex] = tempScalarData[voxelIndex];
 
@@ -247,7 +225,116 @@ void Volumes::getScalarData(const std::vector<std::uint32_t>& dimensionIndices, 
     }
 }
 
-void Volumes::getScalarDataForVolumeStack(const std::uint32_t& dimensionIndex, QVector<float>& scalarData, QPair<float, float>& scalarDataRange)
+mv::Vector3f Volumes::getVolumeAtlasData(const std::vector<std::uint32_t>& dimensionIndices, std::vector<float>& scalarData, QPair<float, float>& scalarDataRange, int textureBlockDimensions /*default value = 4 (RGBA)*/)
+{
+    try
+    {
+        const std::int32_t numberOfVoxels = getNumberOfVoxels();
+        const std::int32_t numberOfElementsRequired = std::ceil(dimensionIndices.size() / textureBlockDimensions) * textureBlockDimensions * getNumberOfVoxels();
+        const std::int32_t numberOfComponentsPerVoxel = getComponentsPerVoxel();
+
+        qDebug() << "Size of vector: " << scalarData.size();
+        if (static_cast<std::uint32_t>(scalarData.size()) < numberOfElementsRequired)
+            throw std::runtime_error("Scalar data vector number of elements is smaller than (nDimensions * nVoxels)");
+
+        int brickAmount = std::ceil(dimensionIndices.size() / textureBlockDimensions);
+
+        // These are currently not intresting, but later on we might add borders to the blocks to avoid interpolation artifacts
+        int width = getVolumeSize().width();
+        int height = getVolumeSize().height();
+        int depth = getVolumeSize().depth();
+
+        mv::Vector3f maxDimsInBricks = mv::Vector3f(GL_MAX_3D_TEXTURE_SIZE / width, GL_MAX_3D_TEXTURE_SIZE / height, GL_MAX_3D_TEXTURE_SIZE / depth);
+        mv::Vector3f brickLayout = findOptimalDimensions(brickAmount, maxDimsInBricks);
+
+
+        QVector<float> tempScalarData(numberOfElementsRequired);
+        QPair<float, float> tempScalarDataRange(std::numeric_limits<float>::max(), std::numeric_limits<float>::lowest());
+
+        int trueWidth = width * brickLayout.x;
+        int trueHeight = height * brickLayout.y;
+        int trueDepth = depth * brickLayout.z;
+        
+        std::int32_t componentIndex = 0;
+
+        qDebug() << "Brick layout: " << brickLayout.x << "x" << brickLayout.y << "x" << brickLayout.z;
+        for (const auto& dimensionIndex : dimensionIndices) {
+            qDebug() << "Getting scalar data for dimension index: " << dimensionIndex;
+            getScalarDataForVolumeDimension(dimensionIndex, tempScalarData, tempScalarDataRange);
+            int brickIndex = std::floor(componentIndex / textureBlockDimensions);
+
+            int brickX = brickIndex % int(brickLayout.x);
+            int brickY = int(std::floor(brickIndex / brickLayout.x)) % int(brickLayout.y);
+            int brickZ = std::floor(brickIndex / (brickLayout.x * brickLayout.y));
+
+            qDebug() << "Brick index: " << brickIndex << "Brick position: " << brickX << "x" << brickY << "x" << brickZ;
+            for (std::int32_t voxelIndex = 0; voxelIndex < numberOfVoxels; voxelIndex++) {
+                mv::Vector3f voxelCoordinate = getVoxelCoordinateFromVoxelIndex(voxelIndex);
+                std::uint32_t valueIndex = (voxelCoordinate.x + (brickX * width)) * textureBlockDimensions
+                    + (voxelCoordinate.y + (brickY * height)) * trueWidth * textureBlockDimensions
+                    + (voxelCoordinate.z + (brickZ * depth)) * trueWidth * trueHeight * textureBlockDimensions;
+                //if (voxelIndex > 60000) {
+                //    qDebug() << "Voxel index: " << voxelIndex;
+                //    qDebug() << "Voxel coordinate: " << voxelCoordinate.x << "x" << voxelCoordinate.y << "x" << voxelCoordinate.z;
+                //    qDebug() << "Value index: " << valueIndex + (componentIndex % textureBlockDimensions);
+                //}
+                float value = tempScalarData[voxelIndex];
+                scalarData[valueIndex + (componentIndex % textureBlockDimensions)] = value;
+            }
+
+            componentIndex++;
+        }
+
+        scalarDataRange = { std::numeric_limits<float>::max(), std::numeric_limits<float>::lowest() };
+
+        for (auto& scalar : scalarData) {
+            scalarDataRange.first = std::min(scalar, scalarDataRange.first);
+            scalarDataRange.second = std::max(scalar, scalarDataRange.second);
+        }
+
+        return mv::Vector3f(trueWidth, trueHeight, trueDepth);
+    }
+    catch (std::exception& e)
+    {
+        exceptionMessageBox("Unable to get scalar data for the given dimension indices", e);
+    }
+    catch (...) {
+        exceptionMessageBox("Unable to get scalar data for the given dimension indices");
+    }
+}
+
+// Finds the optimal dimensions for the volume cube when given a certain amount of cubes
+mv::Vector3f Volumes::findOptimalDimensions(int N, mv::Vector3f maxDims) {
+    int maxX = std::min(int(std::ceil(std::cbrt(N))), int(std::floor(maxDims.x)));
+    int maxY = std::min(int(std::ceil(std::cbrt(N))), int(std::floor(maxDims.y)));
+    int maxZ = std::min(int(std::ceil(std::cbrt(N))), int(std::floor(maxDims.z)));
+
+    mv::Vector3f bestDims(1, 1, 1);
+    int bestVolume = std::numeric_limits<int>::max();
+
+    for (int z = 1; z <= maxZ; ++z) {
+        if (N % z != 0) continue;
+        int remaining = N / z;
+        for (int y = 1; y <= maxY; ++y) {
+            if (remaining % y != 0) continue;
+            int x = remaining / y;
+            if (x <= maxX) {
+                int volume = x * y * z;
+                if (volume == N) {
+                    return mv::Vector3f(x, y, z); // Exact match found
+                }
+                if (volume >= N && volume < bestVolume) {
+                    bestVolume = volume;
+                    bestDims = mv::Vector3f(x, y, z); // best match so far
+                }
+            }
+        }
+    }
+
+    return bestDims; // Return the closest combination found
+}
+
+void Volumes::getScalarDataForVolumeDimension(const std::uint32_t& dimensionIndex, QVector<float>& scalarData, QPair<float, float>& scalarDataRange)
 {
     auto parent = getParent();
 
@@ -256,28 +343,24 @@ void Volumes::getScalarDataForVolumeStack(const std::uint32_t& dimensionIndex, Q
 
         std::vector<std::uint32_t> globalIndices;
 
-        points->getGlobalIndices(globalIndices);
+        points->getGlobalIndices(globalIndices); //TODO this seems very inneficient to call this every time
 
 
-        points->visitData([this, &points, dimensionIndex, &globalIndices, &scalarData](auto pointData) {
-            if (points->isFull()) {
-                for (std::uint32_t localPointIndex = 0; localPointIndex < globalIndices.size(); localPointIndex++) {
-                    scalarData[globalIndices[localPointIndex]] = pointData[localPointIndex][dimensionIndex];
-                }
-            }
-            else {
-                for (std::uint32_t pointIndex = 0; pointIndex < pointData.size(); pointIndex++) {
-                    scalarData[globalIndices[pointIndex]] = pointData[pointIndex][dimensionIndex];
-                }
+        points->visitData([this, dimensionIndex, &globalIndices, &scalarData](auto pointData) {
+            for (std::uint32_t pointIndex = 0; pointIndex < pointData.size(); pointIndex++) {
+                scalarData[globalIndices[pointIndex]] = pointData[pointIndex][dimensionIndex];
             }
         });
-    }   
+    }
+    else {
+        qCritical() << "Volumes: warning: volume data set must be derived from points."; // This is already checked during creation so this should never happen
+    }
 }
 
 mv::Vector3f Volumes::getVoxelCoordinateFromVoxelIndex(const std::int32_t& voxelIndex) const
 {
     const auto size = getVolumeSize();
-    return mv::Vector3f(voxelIndex % size.width(), static_cast<std::int32_t>(voxelIndex / static_cast<float>(size.width())), static_cast<std::int32_t>(voxelIndex / static_cast<float>(size.width() * size.height())));
+    return mv::Vector3f(voxelIndex % size.width(), (voxelIndex / size.width()) % size.height(), voxelIndex / (size.width() * size.height()));
 }
 
 std::int32_t Volumes::getVoxelIndexFromVoxelCoordinate(const mv::Vector3f& voxelCoordinate) const
@@ -292,9 +375,6 @@ void Volumes::fromVariantMap(const QVariantMap& variantMap)
 
     auto volumeData = getRawData<VolumeData>();
 
-    if (variantMap.contains("TypeIndex"))
-        getRawData<VolumeData>()->setReturnFormat(static_cast<VolumeData::ReturnFormat>(variantMap["TypeIndex"].toInt()));
-
     if (variantMap.contains("VolumeSize")) {
         const auto volumeSize = variantMap["VolumeSize"].toMap();
 
@@ -302,7 +382,7 @@ void Volumes::fromVariantMap(const QVariantMap& variantMap)
     }
 
     if (variantMap.contains("NumberOfComponentsPerVoxel"))
-        setNumberOfComponentsPerVoxel(variantMap["NumberOfComponentsPerVoxel"].toInt());
+        setComponentsPerVoxel(variantMap["NumberOfComponentsPerVoxel"].toInt());
 
     if (variantMap.contains("VolumeFilePaths"))
         setVolumeFilePaths(variantMap["VolumeFilePaths"].toStringList());
@@ -314,10 +394,9 @@ QVariantMap Volumes::toVariantMap() const
 {
     auto variantMap = DatasetImpl::toVariantMap();
 
-    variantMap["TypeIndex"] = static_cast<std::int32_t>(getReturnFormat());
-    variantMap["TypeName"] = VolumeData::getTypeName(getReturnFormat());
+
     variantMap["VolumeSize"] = QVariantMap({ { "Width", getVolumeSize().width() }, { "Height", getVolumeSize().height() }, { "Depth", getVolumeSize().depth() } });
-    variantMap["NumberOfComponentsPerVoxel"] = getNumberOfComponentsPerVoxel();
+    variantMap["NumberOfComponentsPerVoxel"] = getComponentsPerVoxel();
     variantMap["VolumeFilePaths"] = getVolumeFilePaths();
 
     return variantMap;

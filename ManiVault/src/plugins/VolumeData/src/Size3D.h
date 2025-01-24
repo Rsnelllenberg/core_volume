@@ -1,8 +1,10 @@
 #pragma once
 
+#include "Common.h"
 #include <QDebug>
+#include "graphics/Vector3f.h"
 
-class Size3D
+class VOLUMEDATA_EXPORT Size3D
 {
 public:
     Size3D();
@@ -18,6 +20,8 @@ public:
     void setWidth(int width);
     void setHeight(int height);
     void setDepth(int depth);
+
+    mv::Vector3f toVector3f() const;
 
     bool operator==(const Size3D &other) const;
     bool operator!=(const Size3D &other) const;

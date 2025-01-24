@@ -24,7 +24,6 @@ class VOLUMEDATA_EXPORT VolumeData : public mv::plugin::RawData
 public:
     enum ReturnFormat
     {
-        Undefined = -1,
         Single, // Every voxel contains all the channels (used for analyzing purposes)
         Atlas   // Every voxel contains only 4 channels (R, G, B, A) and the stack is a bunch of volumes with the same size (used for texture purposes)
     };
@@ -53,15 +52,6 @@ public:
 
 public:
 
-    /** Gets the volume collection type e.g. stack or sequence */
-    ReturnFormat getReturnFormat() const;
-
-    /**
-     * Sets the volume collection type e.g. stack or sequence
-     * @param type Volume collection type
-     */
-    void setReturnFormat(const ReturnFormat& type);
-
     /** Get the volume size */
     Size3D getVolumeSize() const;
 
@@ -72,13 +62,13 @@ public:
     void setVolumeSize(const Size3D& volumeSize);
 
     /** Gets the number of components per voxel */
-    std::uint32_t getNumberOfComponentsPerVoxel() const;
+    std::uint32_t getComponentsPerVoxel() const;
 
     /**
      * Sets the number of components per voxel
      * @param numberOfVoxelComponents Number of voxel components
      */
-    void setNumberOfComponentsPerVoxel(const std::uint32_t& numberOfComponentsPerVoxel);
+    void setComponentsPerVoxel(const std::uint32_t& componentsPerVoxel);
 
     /** Gets the volume file paths */
     QStringList getVolumeFilePaths() const;
@@ -97,9 +87,8 @@ public:
     mv::Dataset<mv::DatasetImpl> createDataSet(const QString& guid = "") const override;
 
 private:
-    ReturnFormat        _returnFormat;                  /** Type of data that should be returned */
     Size3D              _volumeSize;                    /** Volume size */
-    std::uint32_t       _numberOfComponentsPerVoxel;    /** Number of components per voxel */
+    std::uint32_t       _componentsPerVoxel;            /** Number of values per voxel */
     QStringList         _volumeFilePaths;               /** Volume file paths */
     QStringList         _dimensionNames;                /** Dimension names */
 };

@@ -15,19 +15,19 @@ InfoAction::InfoAction(QObject* parent, Volumes& volumes) :
     _typeAction(this, "Volume collection type"),
     _volumeResolutionAction(this, "Volume resolution"),
     _numberOfVoxelsAction(this, "Number of voxels per volume"),
-    _valuesPerVoxelAction(this, "Number of components per voxel")
+    _componentsPerVoxelAction(this, "Number of components per voxel")
 {
     setText("Info");
 
     addAction(&_typeAction);
     addAction(&_volumeResolutionAction);
     addAction(&_numberOfVoxelsAction);
-    addAction(&_valuesPerVoxelAction);
+    addAction(&_componentsPerVoxelAction);
 
     _typeAction.setEnabled(false);
     _volumeResolutionAction.setEnabled(false);
     _numberOfVoxelsAction.setEnabled(false);
-    _valuesPerVoxelAction.setEnabled(false);
+    _componentsPerVoxelAction.setEnabled(false);
 
     const auto sizeToString = [](const Size3D& size) -> QString {
         return QString("[%1, %2, %3]").arg(QString::number(size.width()), QString::number(size.height()), QString::number(size.depth()));
@@ -37,13 +37,11 @@ InfoAction::InfoAction(QObject* parent, Volumes& volumes) :
         if (!_volumes.isValid())
             return;
 
-        _typeAction.setString(VolumeData::getTypeName(_volumes->getReturnFormat()));
-
         const auto volumeSize = _volumes->getVolumeSize();
 
         _volumeResolutionAction.setString(sizeToString(volumeSize));
         _numberOfVoxelsAction.setString(QString::number(_volumes->getNumberOfVoxels()));
-        _valuesPerVoxelAction.setString(QString::number(_volumes->getNumberOfComponentsPerVoxel()));
+        _componentsPerVoxelAction.setString(QString::number(_volumes->getComponentsPerVoxel()));
         };
 
         _eventListener.addSupportedEventType(static_cast<std::uint32_t>(EventType::DatasetAdded));

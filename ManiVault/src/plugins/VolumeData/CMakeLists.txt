@@ -31,6 +31,8 @@ set(VOLUME_DATA_HEADERS
     src/VolumeData.h
     src/Volumes.h
     src/Common.h
+    src/Size3D.h
+    src/Size3D.cpp
     ${CMAKE_CURRENT_BINARY_DIR}/volumedata_export.h
 )
 
@@ -49,21 +51,16 @@ set(ACTIONS_SOURCES
     src/InfoAction.cpp
 )
 
-set(PLUGIN_GRAPHICS
-    src/Size3D.h
-    src/Size3D.cpp
-)
-
 set(ACTIONS_SOURCES 
     src/InfoAction.h
     src/InfoAction.cpp
 )
 
 source_group(Actions FILES ${ACTIONS_SOURCES})
-source_group(Plugin FILES ${VOLUME_DATA_HEADERS} ${VOLUME_DATA_SOURCES} ${PLUGIN_GRAPHICS})
+source_group(Plugin FILES ${VOLUME_DATA_HEADERS} ${VOLUME_DATA_SOURCES} )
 source_group(Aux FILES ${AUX})
 
-add_library(${VOLUMEDATA} SHARED ${VOLUME_DATA_HEADERS} ${VOLUME_DATA_SOURCES} ${PLUGIN_GRAPHICS} ${ACTIONS_SOURCES} ${AUX})
+add_library(${VOLUMEDATA} SHARED ${VOLUME_DATA_HEADERS} ${VOLUME_DATA_SOURCES} ${ACTIONS_SOURCES} ${AUX})
 
 add_library(ManiVault::${VOLUMEDATA} ALIAS ${VOLUMEDATA})
 

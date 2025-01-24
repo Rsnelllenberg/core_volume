@@ -1,5 +1,5 @@
 {
     "name" : "Volumes",
     "version" : "1",
-    "dependencies" : ["Points", "Cluster"]
+    "dependencies" : ["Points"]
 }

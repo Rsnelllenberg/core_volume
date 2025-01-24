@@ -36,7 +36,7 @@ protected:
     StringAction            _typeAction;                         /** Volume collection type action */
     StringAction            _volumeResolutionAction;             /** Volume resolution action */
     StringAction            _numberOfVoxelsAction;               /** Number of voxels per volume action */
-    StringAction            _valuesPerVoxelAction;     /** Number of components per voxel action */
+    StringAction            _componentsPerVoxelAction;           /** Number of components per voxel action */
     mv::EventListener       _eventListener;                      /** Listen to ManiniVault events */
 };
 

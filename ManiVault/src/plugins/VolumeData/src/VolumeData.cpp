@@ -22,9 +22,8 @@ using namespace mv::util;
 
 VolumeData::VolumeData(const mv::plugin::PluginFactory* factory) :
     mv::plugin::RawData(factory, VolumeType),
-    _returnFormat(ReturnFormat::Single),
     _volumeSize(),
-    _numberOfComponentsPerVoxel(0),
+    _componentsPerVoxel(0),
     _volumeFilePaths(),
     _dimensionNames()
 {
@@ -32,16 +31,6 @@ VolumeData::VolumeData(const mv::plugin::PluginFactory* factory) :
 
 void VolumeData::init()
 {
-}
-
-VolumeData::ReturnFormat VolumeData::getReturnFormat() const
-{
-    return _returnFormat;
-}
-
-void VolumeData::setReturnFormat(const VolumeData::ReturnFormat& type)
-{
-    _returnFormat = type;
 }
 
 Size3D VolumeData::getVolumeSize() const
@@ -54,14 +43,14 @@ void VolumeData::setVolumeSize(const Size3D& volumeSize)
     _volumeSize = volumeSize;
 }
 
-std::uint32_t VolumeData::getNumberOfComponentsPerVoxel() const
+std::uint32_t VolumeData::getComponentsPerVoxel() const
 {
-    return _numberOfComponentsPerVoxel;
+    return _componentsPerVoxel;
 }
 
-void VolumeData::setNumberOfComponentsPerVoxel(const std::uint32_t& numberOfComponentsPerVoxel)
+void VolumeData::setComponentsPerVoxel(const std::uint32_t& componentsPerVoxel)
 {
-    _numberOfComponentsPerVoxel = numberOfComponentsPerVoxel;
+    _componentsPerVoxel = componentsPerVoxel;
 }
 
 QStringList VolumeData::getVolumeFilePaths() const

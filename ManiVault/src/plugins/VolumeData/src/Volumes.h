@@ -42,7 +42,7 @@ public: // Construction
     void init() override;
 
     /**
-     * Creates a dataset and derives a volume dataset from it:
+     * Recieves a dataset and derives a volume dataset from it:
      *
      *      auto [pointDataset, volumeDataset] = Volumes::addVolumeDataset("My Volume", parent);
      *
@@ -70,15 +70,6 @@ public: // Volume retrieval functions
     /** Obtain a copy of this dataset */
     mv::Dataset<mv::DatasetImpl> copy() const override;
 
-    /** Gets the volume collection type e.g. single or atlas */
-    VolumeData::ReturnFormat getReturnFormat() const;
-
-    /**
-     * Sets the volume collection type e.g. single or atlas
-     * @param type Volume collection type
-     */
-    void setReturnFormat(const VolumeData::ReturnFormat& type);
-
     /** Gets the size of the volumes */
     Size3D getVolumeSize() const;
 
@@ -88,14 +79,15 @@ public: // Volume retrieval functions
      */
     void setVolumeSize(const Size3D& volumeSize);
 
-    /** Gets the number of components per voxel */
-    std::uint32_t getNumberOfComponentsPerVoxel() const;
+    /** Gets the number of values per voxel */
+    std::uint32_t getComponentsPerVoxel() const;
 
     /**
-     * Sets the number of components per voxel
-     * @param numberOfComponentsPerVoxel Number of components per voxel
+     * Sets the number of values per voxel
+     * @param ValuesPerVoxel Number of values per voxel
      */
-    void setNumberOfComponentsPerVoxel(const std::uint32_t& numberOfComponentsPerVoxel);
+    void setComponentsPerVoxel(const std::uint32_t& numberOfComponentsPerVoxel);
+
 
     /** Get the volume file paths */
     QStringList getVolumeFilePaths() const;
@@ -108,9 +100,6 @@ public: // Volume retrieval functions
 
     /** Returns the number of voxels in total */
     std::uint32_t getNumberOfVoxels() const;
-
-    /** Returns the number of values per voxel */
-    static std::uint32_t valuesPerVoxel();
 
     /**
      * Get plugin icon
@@ -157,40 +146,37 @@ public: // Selection
 public:
 
     /**
-     * Get scalar volume data for \p dimensionIndex, populates \p scalarData and \p establishes the \p scalarDataRange
-     * @param dimensionIndex Dimension index
-     * @param scalarData Scalar data for the specified dimension (assumes enough elements are allocated by the caller)
-     * @param scalarDataRange Scalar data range
-     */
-    void getScalarData(const std::uint32_t& dimensionIndex, QVector<float>& scalarData, QPair<float, float>& scalarDataRange);
-
-    /**
-     * Get scalar volume data for \p dimensionIndices, populates \p scalarData and \p establishes the \p scalarDataRange
+     * Get scalar volume data for dimensionIndices, populates scalarData as if populating a n-dimensional texture acoording to the specified type and establishes the scalarDataRange
      * @param dimensionIndices Dimension indices to retrieve the scalar data for
      * @param scalarData Scalar data for the specified dimension (assumes enough elements are allocated by the caller)
      * @param scalarDataRange Scalar data range
+     * @param returnType Return format
      */
-    void getScalarData(const std::vector<std::uint32_t>& dimensionIndices, QVector<float>& scalarData, QPair<float, float>& scalarDataRange);
+    void getVolumeData(const std::vector<std::uint32_t>& dimensionIndices, std::vector<float>& scalarData, QPair<float, float>& scalarDataRange);
+
+    mv::Vector3f getVolumeAtlasData(const std::vector<std::uint32_t>& dimensionIndices, std::vector<float>& scalarData, QPair<float, float>& scalarDataRange, int textureBlockDimensions = 4);
 
 protected:
 
-    /**
-     * Get volume stack scalar data for \p dimensionIndex, populate \p scalarData and establish the \p scalarDataRange
-     * @param dimensionIndex Dimension index
-     * @param scalarData Scalar data for the specified dimension
-     * @param scalarDataRange Scalar data range
-     */
-    void getScalarDataForVolumeStack(const std::uint32_t& dimensionIndex, QVector<float>& scalarData, QPair<float, float>& scalarDataRange);
+    mv::Vector3f findOptimalDimensions(int N, mv::Vector3f maxDims);
 
     /**
-     * Get voxel coordinate from voxel index
+    * Get scalar data for a single volume dimension
+    * @param dimensionIndex Dimension index to retrieve the scalar data for
+    * @param scalarData Scalar data for the specified dimension (assumes enough elements are allocated by the caller)
+    * @param scalarDataRange Scalar data range
+    */
+    void getScalarDataForVolumeDimension(const std::uint32_t& dimensionIndex, QVector<float>& scalarData, QPair<float, float>& scalarDataRange);
+
+    /**
+     * Get voxel coordinate from voxel index, doesn't take into account valueDimensions
      * @param voxelIndex Voxel index
      */
     mv::Vector3f getVoxelCoordinateFromVoxelIndex(const std::int32_t& voxelIndex) const;
 
     /**
-     * Get voxel index from voxel coordinate
-     * @param voxelCoordinate Voxel coordinate
+     * Get voxel index from voxel coordinate, doesn't take into account valueDimensions
+     * @param voxelCoordinate Voxel coordinate (0-1 range)
      * @return Voxel index
      */
     std::int32_t getVoxelIndexFromVoxelCoordinate(const mv::Vector3f& voxelCoordinate) const;
