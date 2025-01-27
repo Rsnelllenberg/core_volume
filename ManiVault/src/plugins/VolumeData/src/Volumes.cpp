@@ -227,6 +227,7 @@ void Volumes::getVolumeData(const std::vector<std::uint32_t>& dimensionIndices, 
 
 mv::Vector3f Volumes::getVolumeAtlasData(const std::vector<std::uint32_t>& dimensionIndices, std::vector<float>& scalarData, QPair<float, float>& scalarDataRange, int textureBlockDimensions /*default value = 4 (RGBA)*/)
 {
+    qDebug() << "amount of dimensions: " << dimensionIndices.size();
     try
     {
         const std::int32_t numberOfVoxels = getNumberOfVoxels();
@@ -237,7 +238,7 @@ mv::Vector3f Volumes::getVolumeAtlasData(const std::vector<std::uint32_t>& dimen
         if (static_cast<std::uint32_t>(scalarData.size()) < numberOfElementsRequired)
             throw std::runtime_error("Scalar data vector number of elements is smaller than (nDimensions * nVoxels)");
 
-        int brickAmount = std::ceil(dimensionIndices.size() / textureBlockDimensions);
+        int brickAmount = std::ceil(float(dimensionIndices.size()) / float(textureBlockDimensions));
 
         // These are currently not intresting, but later on we might add borders to the blocks to avoid interpolation artifacts
         int width = getVolumeSize().width();
@@ -256,10 +257,10 @@ mv::Vector3f Volumes::getVolumeAtlasData(const std::vector<std::uint32_t>& dimen
         int trueDepth = depth * brickLayout.z;
         
         std::int32_t componentIndex = 0;
-
+        qDebug() << "brick amount: " << brickAmount;
         qDebug() << "Brick layout: " << brickLayout.x << "x" << brickLayout.y << "x" << brickLayout.z;
         for (const auto& dimensionIndex : dimensionIndices) {
-            qDebug() << "Getting scalar data for dimension index: " << dimensionIndex;
+            //qDebug() << "Getting scalar data for dimension index: " << dimensionIndex;
             getScalarDataForVolumeDimension(dimensionIndex, tempScalarData, tempScalarDataRange);
             int brickIndex = std::floor(componentIndex / textureBlockDimensions);
 
@@ -267,7 +268,7 @@ mv::Vector3f Volumes::getVolumeAtlasData(const std::vector<std::uint32_t>& dimen
             int brickY = int(std::floor(brickIndex / brickLayout.x)) % int(brickLayout.y);
             int brickZ = std::floor(brickIndex / (brickLayout.x * brickLayout.y));
 
-            qDebug() << "Brick index: " << brickIndex << "Brick position: " << brickX << "x" << brickY << "x" << brickZ;
+            //qDebug() << "Brick index: " << brickIndex << "Brick position: " << brickX << "x" << brickY << "x" << brickZ;
             for (std::int32_t voxelIndex = 0; voxelIndex < numberOfVoxels; voxelIndex++) {
                 mv::Vector3f voxelCoordinate = getVoxelCoordinateFromVoxelIndex(voxelIndex);
                 std::uint32_t valueIndex = (voxelCoordinate.x + (brickX * width)) * textureBlockDimensions
@@ -305,19 +306,33 @@ mv::Vector3f Volumes::getVolumeAtlasData(const std::vector<std::uint32_t>& dimen
 
 // Finds the optimal dimensions for the volume cube when given a certain amount of cubes
 mv::Vector3f Volumes::findOptimalDimensions(int N, mv::Vector3f maxDims) {
-    int maxX = std::min(int(std::ceil(std::cbrt(N))), int(std::floor(maxDims.x)));
-    int maxY = std::min(int(std::ceil(std::cbrt(N))), int(std::floor(maxDims.y)));
-    int maxZ = std::min(int(std::ceil(std::cbrt(N))), int(std::floor(maxDims.z)));
+    int maxX = 1;
+    int maxY = 1;
+    int maxZ = 1;
 
     mv::Vector3f bestDims(1, 1, 1);
     int bestVolume = std::numeric_limits<int>::max();
+    if (N <= maxDims.x) {
+        return mv::Vector3f(N, 1, 1);
+    }
+    else if (N <= maxDims.x * maxDims.y) {
+        maxX = std::min(int(std::ceil(std::sqrt(N))), int(std::floor(maxDims.x)));
+        maxY = std::min(int(std::ceil(std::sqrt(N))), int(std::floor(maxDims.y)));
+    }
+    else if (N <= maxDims.x * maxDims.y * maxDims.z) {
+        maxX = std::min(int(std::ceil(std::cbrt(N))), int(std::floor(maxDims.x)));
+        maxY = std::min(int(std::ceil(std::cbrt(N))), int(std::floor(maxDims.y)));
+        maxZ = std::min(int(std::ceil(std::cbrt(N))), int(std::floor(maxDims.z)));
+    }
+    else {
+        qCritical() << "Volume too large to fit in texture";
+    }
+
 
     for (int z = 1; z <= maxZ; ++z) {
-        if (N % z != 0) continue;
-        int remaining = N / z;
+        float remaining = std::ceil(N / float(z));
         for (int y = 1; y <= maxY; ++y) {
-            if (remaining % y != 0) continue;
-            int x = remaining / y;
+            int x = std::ceil(remaining / float(y));
             if (x <= maxX) {
                 int volume = x * y * z;
                 if (volume == N) {
