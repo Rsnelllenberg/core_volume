@@ -231,7 +231,7 @@ mv::Vector3f Volumes::getVolumeAtlasData(const std::vector<std::uint32_t>& dimen
     try
     {
         const std::int32_t numberOfVoxels = getNumberOfVoxels();
-        const std::int32_t numberOfElementsRequired = std::ceil(dimensionIndices.size() / textureBlockDimensions) * textureBlockDimensions * getNumberOfVoxels();
+        const std::int32_t numberOfElementsRequired = std::ceil(float(dimensionIndices.size()) / float(textureBlockDimensions)) * textureBlockDimensions * getNumberOfVoxels();
         const std::int32_t numberOfComponentsPerVoxel = getComponentsPerVoxel();
 
         qDebug() << "Size of vector: " << scalarData.size();
@@ -250,6 +250,7 @@ mv::Vector3f Volumes::getVolumeAtlasData(const std::vector<std::uint32_t>& dimen
 
 
         QVector<float> tempScalarData(numberOfElementsRequired);
+        qDebug() << "Size of temp vector: " << tempScalarData.size() << " " << numberOfElementsRequired;
         QPair<float, float> tempScalarDataRange(std::numeric_limits<float>::max(), std::numeric_limits<float>::lowest());
 
         int trueWidth = width * brickLayout.x;
@@ -260,7 +261,7 @@ mv::Vector3f Volumes::getVolumeAtlasData(const std::vector<std::uint32_t>& dimen
         qDebug() << "brick amount: " << brickAmount;
         qDebug() << "Brick layout: " << brickLayout.x << "x" << brickLayout.y << "x" << brickLayout.z;
         for (const auto& dimensionIndex : dimensionIndices) {
-            //qDebug() << "Getting scalar data for dimension index: " << dimensionIndex;
+            qDebug() << "Getting scalar data for dimension index: " << dimensionIndex;
             getScalarDataForVolumeDimension(dimensionIndex, tempScalarData, tempScalarDataRange);
             int brickIndex = std::floor(componentIndex / textureBlockDimensions);
 
@@ -268,17 +269,11 @@ mv::Vector3f Volumes::getVolumeAtlasData(const std::vector<std::uint32_t>& dimen
             int brickY = int(std::floor(brickIndex / brickLayout.x)) % int(brickLayout.y);
             int brickZ = std::floor(brickIndex / (brickLayout.x * brickLayout.y));
 
-            //qDebug() << "Brick index: " << brickIndex << "Brick position: " << brickX << "x" << brickY << "x" << brickZ;
             for (std::int32_t voxelIndex = 0; voxelIndex < numberOfVoxels; voxelIndex++) {
                 mv::Vector3f voxelCoordinate = getVoxelCoordinateFromVoxelIndex(voxelIndex);
                 std::uint32_t valueIndex = (voxelCoordinate.x + (brickX * width)) * textureBlockDimensions
                     + (voxelCoordinate.y + (brickY * height)) * trueWidth * textureBlockDimensions
                     + (voxelCoordinate.z + (brickZ * depth)) * trueWidth * trueHeight * textureBlockDimensions;
-                //if (voxelIndex > 60000) {
-                //    qDebug() << "Voxel index: " << voxelIndex;
-                //    qDebug() << "Voxel coordinate: " << voxelCoordinate.x << "x" << voxelCoordinate.y << "x" << voxelCoordinate.z;
-                //    qDebug() << "Value index: " << valueIndex + (componentIndex % textureBlockDimensions);
-                //}
                 float value = tempScalarData[voxelIndex];
                 scalarData[valueIndex + (componentIndex % textureBlockDimensions)] = value;
             }
@@ -359,7 +354,6 @@ void Volumes::getScalarDataForVolumeDimension(const std::uint32_t& dimensionInde
         std::vector<std::uint32_t> globalIndices;
 
         points->getGlobalIndices(globalIndices); //TODO this seems very inneficient to call this every time
-
 
         points->visitData([this, dimensionIndex, &globalIndices, &scalarData](auto pointData) {
             for (std::uint32_t pointIndex = 0; pointIndex < pointData.size(); pointIndex++) {
