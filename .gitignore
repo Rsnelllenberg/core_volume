@@ -8,6 +8,7 @@ Doxygen/
 .vscode
 install/
 *.bak
+.vs
 
 .DS_Store
 
