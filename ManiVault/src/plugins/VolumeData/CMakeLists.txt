@@ -30,7 +30,6 @@ set(VOLUME_DATA_HEADERS
     src/Volume.h
     src/VolumeData.h
     src/Volumes.h
-    src/Common.h
     src/Size3D.h
     src/Size3D.cpp
     ${CMAKE_CURRENT_BINARY_DIR}/volumedata_export.h

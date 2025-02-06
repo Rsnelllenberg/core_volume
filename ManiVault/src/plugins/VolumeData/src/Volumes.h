@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "Common.h"
+#include "volumedata_export.h"
 #include "Volume.h"
 #include "VolumeData.h"
 

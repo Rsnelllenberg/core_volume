@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "Common.h"
+#include "volumedata_export.h"
 #include "Size3D.h"
 
 #include <QString>
