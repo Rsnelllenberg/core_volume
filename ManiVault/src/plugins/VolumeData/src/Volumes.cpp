@@ -186,7 +186,7 @@ void Volumes::selectInvert()
 //}
 
 void Volumes::getVolumeData(const std::vector<std::uint32_t>& dimensionIndices, std::vector<float>& scalarData, QPair<float, float>& scalarDataRange)
-{
+{ 
     try
     {
         const auto numberOfVoxels = static_cast<std::int32_t>(getNumberOfVoxels());
@@ -234,10 +234,6 @@ mv::Vector3f Volumes::getVolumeAtlasData(const std::vector<std::uint32_t>& dimen
         const std::int32_t numberOfElementsRequired = std::ceil(float(dimensionIndices.size()) / float(textureBlockDimensions)) * textureBlockDimensions * getNumberOfVoxels();
         const std::int32_t numberOfComponentsPerVoxel = getComponentsPerVoxel();
 
-        qDebug() << "Size of vector: " << scalarData.size();
-        if (static_cast<std::uint32_t>(scalarData.size()) < numberOfElementsRequired)
-            throw std::runtime_error("Scalar data vector number of elements is smaller than (nDimensions * nVoxels)");
-
         int brickAmount = std::ceil(float(dimensionIndices.size()) / float(textureBlockDimensions));
 
         // These are currently not intresting, but later on we might add borders to the blocks to avoid interpolation artifacts
@@ -257,25 +253,29 @@ mv::Vector3f Volumes::getVolumeAtlasData(const std::vector<std::uint32_t>& dimen
         int trueHeight = height * brickLayout.y;
         int trueDepth = depth * brickLayout.z;
         
+        int trueVolume = trueWidth * trueHeight * trueDepth * textureBlockDimensions;
+        if (trueVolume >= scalarData.size()) {
+            scalarData.resize(trueVolume);
+            qDebug() << "Resized scalar data to: " << trueVolume;
+        }
+
         std::int32_t componentIndex = 0;
-        qDebug() << "brick amount: " << brickAmount;
-        qDebug() << "Brick layout: " << brickLayout.x << "x" << brickLayout.y << "x" << brickLayout.z;
         for (const auto& dimensionIndex : dimensionIndices) {
-            qDebug() << "Getting scalar data for dimension index: " << dimensionIndex;
             getScalarDataForVolumeDimension(dimensionIndex, tempScalarData, tempScalarDataRange);
-            int brickIndex = std::floor(componentIndex / textureBlockDimensions);
+            int brickIndex = std::floor(float(componentIndex) / float(textureBlockDimensions));
 
             int brickX = brickIndex % int(brickLayout.x);
-            int brickY = int(std::floor(brickIndex / brickLayout.x)) % int(brickLayout.y);
-            int brickZ = std::floor(brickIndex / (brickLayout.x * brickLayout.y));
-
+            int brickY = int(std::floor(float(brickIndex) / float(brickLayout.x))) % int(brickLayout.y);
+            int brickZ = std::floor(float(brickIndex) / float(brickLayout.x * brickLayout.y));
             for (std::int32_t voxelIndex = 0; voxelIndex < numberOfVoxels; voxelIndex++) {
                 mv::Vector3f voxelCoordinate = getVoxelCoordinateFromVoxelIndex(voxelIndex);
-                std::uint32_t valueIndex = (voxelCoordinate.x + (brickX * width)) * textureBlockDimensions
-                    + (voxelCoordinate.y + (brickY * height)) * trueWidth * textureBlockDimensions
-                    + (voxelCoordinate.z + (brickZ * depth)) * trueWidth * trueHeight * textureBlockDimensions;
+                std::uint32_t valueIndex = std::uint32_t(std::uint32_t(voxelCoordinate.x + (brickX * width)) * textureBlockDimensions)
+                    + std::uint32_t(std::uint32_t(voxelCoordinate.y + (brickY * height)) * trueWidth * textureBlockDimensions)
+                    + std::uint32_t(std::uint32_t(voxelCoordinate.z + (brickZ * depth)) * trueWidth * trueHeight * textureBlockDimensions);
                 float value = tempScalarData[voxelIndex];
-                scalarData[valueIndex + (componentIndex % textureBlockDimensions)] = value;
+                if(valueIndex > scalarData.size())
+                    qDebug() << "Index out of bounds: " << valueIndex << " " << scalarData.size();
+                scalarData[valueIndex] = value;
             }
 
             componentIndex++;
