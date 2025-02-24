@@ -12,6 +12,8 @@
 
 namespace mv::gui {
 
+QPushButton* WidgetActionToolButton::sizeHintPushButton = nullptr;
+
 WidgetActionToolButton::WidgetActionToolButton(QWidget* parent, WidgetAction* action) :
     QToolButton(parent),
     _action(nullptr),
@@ -20,6 +22,23 @@ WidgetActionToolButton::WidgetActionToolButton(QWidget* parent, WidgetAction* ac
     _menu(*this)
 {
     initialize(action);
+    
+    if (!WidgetActionToolButton::sizeHintPushButton) {
+        WidgetActionToolButton::sizeHintPushButton = new QPushButton(" ");
+        sizeHintPushButton->ensurePolished();
+    }
+    
+    const auto heightHint = WidgetActionToolButton::sizeHintPushButton->sizeHint().height();
+    
+    setMinimumSize(QSize(heightHint, heightHint));
+    
+#ifdef __APPLE__
+    setIconSize(QSize(12, 12));
+           
+    // This is a work-around to prevent sizing issues with tool buttons that have only an icon
+    //setText(" ");
+    
+#endif
 }
 
 WidgetActionToolButton::WidgetActionToolButton(QWidget* parent, WidgetAction* action, WidgetConfigurationFunction widgetConfigurationFunction) :
@@ -60,7 +79,7 @@ void WidgetActionToolButton::paintEvent(QPaintEvent* paintEvent)
         if (_indicatorAlignment & Qt::AlignRight)
             center.setX(width() - margin);
 
-        painter.setPen(QPen(QBrush(isEnabled() ? Qt::black : Qt::gray), 2.5, Qt::SolidLine, Qt::RoundCap));
+        painter.setPen(QPen(QBrush(isEnabled() ? qApp->palette().text().color() : Qt::gray), 2.5, Qt::SolidLine, Qt::RoundCap));
         painter.setBrush(Qt::NoBrush);
         painter.drawPoint(center);
     }

@@ -19,6 +19,7 @@
 #include <QSettings>
 #include <QTemporaryDir>
 #include <QLockFile>
+#include <QPalette>
 
 class QMainWindow;
 
@@ -83,7 +84,16 @@ public: // Construction
      */
     Application(int& argc, char** argv);
 
-    ~Application();
+    ~Application() override;
+
+protected:
+
+    /**
+     * Invoked when \p event occurs
+     * @param event Pointer to event
+     * @return Whether the event was handled or not
+     */
+    bool event(QEvent* event) override;
 
 public: // Miscellaneous
 
@@ -167,7 +177,7 @@ public: // Static resource access functions
      * @param majorVersion Major version number
      * @param minorVersion Minor version number
      */
-    static const IconFont& getIconFont(const QString& name, const std::int32_t& majorVersion = -1, const std::int32_t& minorVersion = -1);
+    static const util::IconFont& getIconFont(const QString& name, const std::int32_t& majorVersion = -1, const std::int32_t& minorVersion = -1);
 
 public: // Settings API
 
@@ -244,22 +254,29 @@ signals:
      */
     void coreManagersCreated(CoreInterface* core);
 
+    /**
+     * Signals that the application palette change to \p palette
+     * @param palette Current application palette
+     */
+    void paletteChanged(const QPalette& palette);
+
 protected:
-    QString                     _id;                                /** Globally unique identifier of the application instance */
-    CoreInterface*              _core;                              /** Pointer to the ManiVault core */
-    const util::Version         _version;                           /** Application version */
-    IconFonts                   _iconFonts;                         /** Icon fonts resource */
-    QSettings                   _settings;                          /** Settings */
-    QString                     _serializationTemporaryDirectory;   /** Temporary directory for serialization */
-    bool                        _serializationAborted;              /** Whether serialization was aborted */
-    util::Logger                _logger;                            /** Logger instance */
-    gui::TriggerAction*         _exitAction;                        /** Action for exiting the application */
-    QString                     _startupProjectFilePath;            /** File path of the project to automatically open upon startup (if set) */
-    ProjectMetaAction*          _startupProjectMetaAction;          /** Pointer to project meta action (non-nullptr case ManiVault starts up with a project) */
-    ApplicationStartupTask*     _startupTask;                       /** Application startup task */
-    QTemporaryDir               _temporaryDir;                      /** Directory where application temporary files reside */
-    TemporaryDirs               _temporaryDirs;                     /** ManiVault application temporary directories manager */
-    QLockFile                   _lockFile;                          /** Lock file is used for fail-safe purging of the temporary directory */
+    QString                 _id;                              /** Globally unique identifier of the application instance */
+    CoreInterface*          _core;                            /** Pointer to the ManiVault core */
+    const util::Version     _version;                         /** Application version */
+    util::IconFonts         _iconFonts;                       /** Icon fonts resource */
+    QSettings               _settings;                        /** Settings */
+    QString                 _serializationTemporaryDirectory; /** Temporary directory for serialization */
+    bool                    _serializationAborted;            /** Whether serialization was aborted */
+    util::Logger            _logger;                          /** Logger instance */
+    gui::TriggerAction*     _exitAction;                      /** Action for exiting the application */
+    QString                 _startupProjectFilePath;          /** File path of the project to automatically open upon startup (if set) */
+    ProjectMetaAction*      _startupProjectMetaAction;        /** Pointer to project meta action (non-nullptr case ManiVault starts up with a project) */
+    ApplicationStartupTask* _startupTask;                     /** Application startup task */
+    QTemporaryDir           _temporaryDir;                    /** Directory where application temporary files reside */
+    TemporaryDirs           _temporaryDirs;                   /** ManiVault application temporary directories manager */
+    QLockFile               _lockFile;                        /** Lock file is used for fail-safe purging of the temporary directory */
+    QPalette                _currentPalette;                  /** Prevent unnecessary emissions of Application::paletteChanged() by comparing with a cached palette */
 };
 
 }

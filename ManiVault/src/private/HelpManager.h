@@ -8,10 +8,12 @@
 
 #include <util/FileDownloader.h>
 
+#include <util/Notification.h>
+
 namespace mv
 {
 
-class HelpManager final : public mv::AbstractHelpManager
+class HelpManager : public mv::AbstractHelpManager
 {
     Q_OBJECT
 
@@ -83,6 +85,22 @@ public:
      */
     QMenu* getTutorialsMenu() const;
 
+    /**
+     * Add toaster notification in the main window
+     * @param title Message title (maybe HTML)
+     * @param description Message description (maybe HTML)
+     * @param icon Icon to display in the notification
+     * @param durationType Duration type of the notification
+     * @param delayMs Delay in milliseconds before the notification is shown
+     */
+    void addNotification(const QString& title, const QString& description, const QIcon& icon = QIcon(), const util::Notification::DurationType& durationType = util::Notification::DurationType::Calculated, std::int32_t delayMs = 0) override;
+
+    /**
+     * Initialize notifications manager with \p parentWidget widget
+     * @param parentWidget Pointer to parent widget
+     */
+    void initializeNotifications(QWidget* parentWidget) override;
+
 public: // Action getters
 
     gui::ToggleAction& getShowLearningCenterPageAction() override { return _showLearningCenterPageAction; }
@@ -93,15 +111,16 @@ public: // Action getters
     gui::TriggerAction& getToLearningCenterAction() override { return _toLearningCenterAction; }
 
 private:
-    gui::ToggleAction               _showLearningCenterPageAction;  /** Toggle action for toggling the learning center page */
-    gui::TriggerAction              _toDiscordAction;               /** External link to discord */
-    gui::TriggerAction              _toWebsiteAction;               /** External link to website */
-    gui::TriggerAction              _toWikiAction;                  /** External link to wiki */
-    gui::TriggerAction              _toRepositoryAction;            /** External link to repository */
-    gui::TriggerAction              _toLearningCenterAction;        /** Trigger action to go the learning center */
-    LearningCenterVideosModel       _videosModel;                   /** Videos model */
-    LearningCenterTutorialsModel    _tutorialsModel;                /** Tutorials model */
-    util::FileDownloader            _fileDownloader;                /** For downloading the learning center JSON file */
+    gui::ToggleAction       		_showLearningCenterPageAction;  /** Toggle action for toggling the learning center */
+    gui::TriggerAction      		_toDiscordAction;               /** External link to discord */
+    gui::TriggerAction      		_toWebsiteAction;               /** External link to website */
+    gui::TriggerAction      		_toWikiAction;                  /** External link to wiki */
+    gui::TriggerAction      		_toRepositoryAction;            /** External link to repository */
+    gui::TriggerAction      		_toLearningCenterAction;        /** Trigger action to go the learning center */
+    LearningCenterVideosModel  		_videosModel;                   /** Videos model */
+	LearningCenterTutorialsModel    _tutorialsModel;                /** Tutorials model */
+    util::Notifications     		_notifications;                 /** Notifications manager */
+	util::FileDownloader            _fileDownloader;                /** For downloading the learning center JSON file */
 };
 
 }

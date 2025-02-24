@@ -10,6 +10,7 @@
 
 #include "util/LearningCenterVideo.h"
 #include "util/LearningCenterTutorial.h"
+#include "util/Notification.h"
 
 #include "models/LearningCenterVideosModel.h"
 #include "models/LearningCenterTutorialsModel.h"
@@ -90,6 +91,22 @@ public:
      * @return Pointer to tutorials menu
      */
     virtual QMenu* getTutorialsMenu() const = 0;
+
+    /**
+     * Add toaster notification in the main window
+     * @param title Message title (maybe HTML)
+     * @param description Message description (maybe HTML)
+     * @param icon Icon to display in the notification
+     * @param durationType Duration type of the notification
+     * @param delayMs Delay in milliseconds before the notification is shown
+     */
+    virtual void addNotification(const QString& title, const QString& description, const QIcon& icon = QIcon(), const util::Notification::DurationType& durationType = util::Notification::DurationType::Calculated, std::int32_t delayMs = 0) = 0;
+
+    /**
+     * Initialize notifications manager with \p parentWidget widget
+     * @param parentWidget Pointer to parent widget
+     */
+    virtual void initializeNotifications(QWidget* parentWidget) = 0;
 
 signals:
 

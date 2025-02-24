@@ -535,8 +535,13 @@ set(PUBLIC_UTIL_HEADERS
     src/util/NumericalRange.h
     src/util/FileDownloader.h
     src/util/ShortcutMap.h
+    src/util/Notification.h
+    src/util/Notifications.h
     src/util/LearningCenterVideo.h
     src/util/LearningCenterTutorial.h
+    src/util/ThemeWatcher.h
+    src/util/NamedIcon.h
+    src/util/ThemeIconEngine.h
 )
 
 if(APPLE)
@@ -583,8 +588,13 @@ set(PUBLIC_UTIL_SOURCES
     src/util/NumericalRange.cpp
     src/util/FileDownloader.cpp
     src/util/ShortcutMap.cpp
+    src/util/Notification.cpp
+    src/util/Notifications.cpp
     src/util/LearningCenterVideo.cpp
     src/util/LearningCenterTutorial.cpp
+    src/util/ThemeWatcher.cpp
+    src/util/NamedIcon.cpp
+    src/util/ThemeIconEngine.cpp
 )
 
 if(APPLE)
@@ -651,6 +661,7 @@ set(PUBLIC_DATASET_HEADERS
     src/RawData.h
     src/Set.h
     src/LinkedData.h
+    src/SelectionGroup.h
     src/Dataset.h
     src/DatasetPrivate.h
     src/DatasetsMimeData.h
@@ -659,6 +670,7 @@ set(PUBLIC_DATASET_HEADERS
 set(PUBLIC_DATASET_SOURCES
     src/Set.cpp
     src/LinkedData.cpp
+    src/SelectionGroup.cpp
     src/Dataset.cpp
     src/DatasetPrivate.cpp
     src/DatasetsMimeData.cpp
@@ -1048,6 +1060,7 @@ set(PUBLIC_HEADERS
 	${PUBLIC_LEARNING_CENTER_TUTORIALS_MODEL_HEADERS}
     ${PUBLIC_GLOBAL_SETTINGS_HEADERS}
     ${PUBLIC_TASK_HEADERS}
+    ${PUBLIC_NOTIFICATIONS_HEADERS}
     ${PUBLIC_VERSION_HEADERS}
     ${PUBLIC_GLOBALS_HEADERS}
 )
@@ -1094,6 +1107,7 @@ set(PUBLIC_SOURCES
 	${PUBLIC_LEARNING_CENTER_TUTORIALS_MODEL_SOURCES}
     ${PUBLIC_GLOBAL_SETTINGS_SOURCES}
     ${PUBLIC_TASK_SOURCES}
+    ${PUBLIC_NOTIFICATIONS_SOURCES}
     ${PUBLIC_HEADERS}
 )
 
@@ -1153,3 +1167,4 @@ source_group(Models\\LearningCenter\\Videos FILES ${PUBLIC_LEARNING_CENTER_VIDEO
 source_group(Models\\LearningCenter\\Tutorials FILES ${PUBLIC_LEARNING_CENTER_TUTORIALS_MODEL_FILES})
 source_group(GlobalSettings FILES ${PUBLIC_GLOBAL_SETTINGS_FILES})
 source_group(Task FILES ${PUBLIC_TASK_FILES})
+source_group(Notifications FILES ${PUBLIC_NOTIFICATIONS_FILES})

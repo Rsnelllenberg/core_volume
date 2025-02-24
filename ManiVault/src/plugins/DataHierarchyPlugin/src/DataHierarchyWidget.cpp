@@ -8,8 +8,6 @@
 #include <Application.h>
 #include <Set.h>
 #include <Dataset.h>
-#include <PluginFactory.h>
-#include <actions/PluginTriggerAction.h>
 
 #include <QDebug>
 #include <QHeaderView>
