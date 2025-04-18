@@ -232,7 +232,6 @@ mv::Vector3f Volumes::getVolumeAtlasData(const std::vector<std::uint32_t>& dimen
     {
         const std::int32_t numberOfVoxels = getNumberOfVoxels();
         const std::int32_t numberOfElementsRequired = std::ceil(float(dimensionIndices.size()) / float(textureBlockDimensions)) * textureBlockDimensions * getNumberOfVoxels();
-        const std::int32_t numberOfComponentsPerVoxel = getComponentsPerVoxel();
 
         int brickAmount = std::ceil(float(dimensionIndices.size()) / float(textureBlockDimensions));
 

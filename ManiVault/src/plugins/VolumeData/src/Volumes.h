@@ -146,7 +146,7 @@ public: // Selection
 public:
 
     /**
-     * Get scalar volume data for dimensionIndices, populates scalarData as if populating a n-dimensional texture acoording to the specified type and establishes the scalarDataRange
+     * Get scalar volume data for dimensionIndices, populates scalarData as if populating a n-dimensional texture according to the specified type and establishes the scalarDataRange
      * @param dimensionIndices Dimension indices to retrieve the scalar data for
      * @param scalarData Scalar data for the specified dimension (assumes enough elements are allocated by the caller)
      * @param scalarDataRange Scalar data range
@@ -154,6 +154,14 @@ public:
      */
     void getVolumeData(const std::vector<std::uint32_t>& dimensionIndices, std::vector<float>& scalarData, QPair<float, float>& scalarDataRange);
 
+    /**
+     * Get scalar volume data for dimensionIndices, populates scalarData as if populating a n-dimensional texture according to the specified type and establishes the scalarDataRange
+     * @param dimensionIndices Dimension indices to retrieve the scalar data for
+     * @param scalarData Scalar data for the specified dimension (assumes enough elements are allocated by the caller)
+     * @param scalarDataRange Scalar data range
+     * @param textureBlockDimensions Texture block dimensions per voxel (default value = 4 (RGBA))
+     * returns the dimensions of the volume atlas
+     */
     mv::Vector3f getVolumeAtlasData(const std::vector<std::uint32_t>& dimensionIndices, std::vector<float>& scalarData, QPair<float, float>& scalarDataRange, int textureBlockDimensions = 4);
 
 protected:
